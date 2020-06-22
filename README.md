@@ -8,4 +8,5 @@ Create a program that can parse and evaluate arithmetic expressions. For example
 - +, -, *, / and parentheses.
 
 ## Current Version
-- Calculates arithmetic expressions but does not detect invalid inputs.
+- Calculates arithmetic expressions: converts usual infix notation expression to postfix notation using The Shunting Yard Algorithm (http://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/);
+- Detection of invalid inputs not implemented.
