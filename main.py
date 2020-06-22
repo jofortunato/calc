@@ -6,16 +6,18 @@ def parse_expression(expression):
     Each item is an element of the expression.
     Example: input: "1+2*2" >> output: ["1","+","2","*","2"]
     """
-    parsed_expression = []
+    parsed_expression = [""]
 
     for character in expression:
         if character.isdigit():
             if parsed_expression[-1].isdigit():
                 parsed_expression[-1] += character
             else:
-                parse_expression.append(character)
+                parsed_expression.append(character)
         elif character in "-+*/()":
-            parse_expression.append(character)
+            parsed_expression.append(character)
+
+    parsed_expression.pop(0)
 
     return parsed_expression
 
@@ -38,21 +40,23 @@ def infix2postfix(infix_expression):
         elif element == "(":
             operators.append(element)
         elif element == ")":
-            while operators[-1] != "(":
+            while operators and operators[-1] != "(":
                 postfix_expression.append(operators[-1])
                 operators.pop()
             operators.pop()
         elif element in "+-/*":
-            if not operators or operators[-1] == "(":
+            if (not operators) or operators[-1] == "(":
                 operators.append(element)
             elif element in high_precedence and\
-                    operators[-1] is low_precedence:
+                    operators[-1] in low_precedence:
                 operators.append(element)
-            while element in high_precedence or\
-                    (element is low_precedence and
-                     operators[-1] is high_precedence):
-                postfix_expression.append(operators[-1])
-                operators.pop()
+            else:
+                while operators and (element in high_precedence or
+                                     (element in low_precedence and
+                                      operators[-1] in low_precedence)):
+                    postfix_expression.append(operators[-1])
+                    operators.pop()
+                operators.append(element)
 
     while operators:
         if operators[-1] in "()":
@@ -63,13 +67,39 @@ def infix2postfix(infix_expression):
     return postfix_expression
 
 
+def simple_calculation(num1, num2, operator):
+    """Perform simple calculation: num1 and num2 using specific operator."""
+    if operator == "+":
+        return str(float(num1) + float(num2))
+    elif operator == "-":
+        return str(float(num1) - float(num2))
+    elif operator == "*":
+        return str(float(num1) * float(num2))
+    elif operator == "/":
+        return str(float(num1) / float(num2))
+
+
 def calculator(expression):
+    """Calculate result of a postfix math expression."""
+    inflix_expression = parse_expression(expression)
+    print(inflix_expression)
+    postfix_expression = infix2postfix(inflix_expression)
+    print(postfix_expression)
 
-    expression_list = parse_expression(expression)
+    temp_result = []
 
-    postfix_expression = infix2postfix(expression_list)
+    for element in postfix_expression:
+        if element in "+-/*":
+            temp = simple_calculation(temp_result[-2],
+                                      temp_result[-1],
+                                      element)
+            temp_result.pop()
+            temp_result.pop()
+            temp_result.append(temp)
+        else:
+            temp_result.append(element)
 
-    return result
+    return temp_result[0]
 
 
 def main():
@@ -79,14 +109,12 @@ def main():
     print("   - negative and positive number;")
     print("   - +, -, /, * and parentheses.\n")
 
-    expression = input("Insert expression (insert exit to quit the app)>>>")
+    expression = str(input("Insert expression (\"exit\" to quit the app)>>>"))
 
     while expression != "exit":
-
-        expression = input("Insert expression (\"exit\" to quit the app)>>>")
         result = calculator(expression)
-
-        print("Result:"+result)
+        print("Result: "+result+"\n")
+        expression = str(input("Insert expression (\"exit\" to quit the app)>>>"))
 
 
 if __name__ == "__main__":
